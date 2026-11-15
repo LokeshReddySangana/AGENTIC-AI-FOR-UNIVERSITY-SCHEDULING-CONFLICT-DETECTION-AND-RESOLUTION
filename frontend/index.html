@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>University Scheduling Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20261115-12" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <img class="brand-logo" src="/static/lpu-logo.svg?v=20261115-1" alt="Lovely Professional University seal" />
+          <div class="brand-copy">
+            <div class="brand-name">Lovely Professional</div>
+            <div class="brand-name small">University</div>
+          </div>
+        </div>
+
+        <div class="ai-header">Agentic AI</div>
+        <h2 class="sidebar-title">University Scheduling</h2>
+        <p class="sidebar-subtitle">Conflict Detection &amp; Resolution</p>
+
+        <nav class="nav-menu">
+          <button class="nav-item active" data-tab="dashboard">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 10.5h7V4H4zm9 0h7V4h-7zm-9 7h7v-6.5H4zm9 0h7v-6.5h-7z"/></svg>
+            </span>
+            Dashboard
+          </button>
+          <button class="nav-item" data-tab="timetable">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 3v3M16 3v3"/></svg>
+            </span>
+            Timetable
+          </button>
+          <button class="nav-item" data-tab="conflicts">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M10.3 3.6L2.5 17a1.6 1.6 0 0 0 1.4 2.4h15.6a1.6 1.6 0 0 0 1.4-2.4L13.7 3.6a1.9 1.9 0 0 0-3.4 0z"/><path d="M12 9v4M12 16.5h.01"/></svg>
+            </span>
+            Conflict Detection
+          </button>
+          <button class="nav-item" data-tab="model">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M8 5.5v13M16 5.5v13M5 9.5h14M5 14.5h14"/></svg>
+            </span>
+            Optimization
+          </button>
+          <button class="nav-item" data-tab="rules">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M5 5.5h14v13l-7-4-7 4z"/><path d="M9 9.5h6M9 13h6"/></svg>
+            </span>
+            Alternative Schedules
+          </button>
+          <button class="nav-item" data-tab="audit">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M5 7.5H19M5 12h14M5 16.5h8"/></svg>
+            </span>
+            Resources
+          </button>
+          <button class="nav-item" data-tab="reports">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M5 17.5V6.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11l-3-2.5-3 2.5-3-2.5-3 2.5z"/></svg>
+            </span>
+            Reports
+          </button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="version-row">
+            <span>Version</span>
+            <span class="version-chip" id="versionChip">v1</span>
+          </div>
+          <p class="side-term" id="sideTerm">—</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <h1 id="pageTitle">Dashboard</h1>
+            <p class="page-sub" id="pageSub"></p>
+          </div>
+
+          <div class="topbar-actions">
+            <div class="semester-pill">
+              <span class="calendar-icon">◫</span>
+              <span>Semester: Winter 2026</span>
+            </div>
+            <button class="icon-button" aria-label="Notifications">◔</button>
+            <div class="status-pill" id="statusPill"><i></i><span>loading</span></div>
+            <div class="profile-avatar">LR</div>
+          </div>
+        </header>
+
+        <section class="panel-view active" id="view-dashboard">
+          <section class="stats-grid" id="kpiRow"></section>
+
+          <section class="mid-grid">
+            <div class="panel timetable-panel">
+              <div class="panel-header">
+                <h3 id="timetableTitle">Weekly Timetable</h3>
+                <div class="timetable-controls">
+                  <div class="week-control">
+                    <button class="week-step" type="button" data-step="-1" data-select="dashboardWeekSelect" aria-label="Previous week">‹</button>
+                    <select class="week-select" id="dashboardWeekSelect" aria-label="Select timetable week"></select>
+                    <button class="week-step" type="button" data-step="1" data-select="dashboardWeekSelect" aria-label="Next week">›</button>
+                  </div>
+                  <label class="timetable-group-control">
+                    <span>Group</span>
+                    <select class="timetable-group-filter" id="dashboardGroupFilter" data-target="timetable"></select>
+                  </label>
+                </div>
+              </div>
+              <div class="timetable-holder" id="timetable"></div>
+            </div>
+
+            <div class="panel conflicts-panel">
+              <div class="panel-header">
+                <h3>Scheduling Conflicts <span class="counter-badge" id="conflictCount">56</span></h3>
+                <div class="segmented severity-filter" id="severityFilter">
+                  <button class="seg active" data-sev="all">All</button>
+                  <button class="seg" data-sev="critical">Critical</button>
+                  <button class="seg" data-sev="high">High</button>
+                  <button class="seg" data-sev="medium">Medium</button>
+                </div>
+              </div>
+              <div class="conflict-list" id="conflictList"></div>
+              <div id="detail" class="hidden-detail"></div>
+            </div>
+          </section>
+
+          <section class="bottom-grid">
+            <div class="panel analytics-panel">
+              <div class="panel-header">
+                <h3>Analytics Overview</h3>
+              </div>
+
+              <div class="analytics-content">
+                <div class="donut-card">
+                  <div class="donut-wrap">
+                    <div class="donut-chart">
+                      <div class="donut-center">
+                        <strong id="roomUtilization">—</strong>
+                        <span>Room-slot utilization</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="legend-row">
+                    <span class="legend-swatch in-use"></span><span id="usedRoomSlots">In use (—)</span>
+                    <span class="legend-swatch available"></span><span id="availableRoomSlots">Available (—)</span>
+                  </div>
+                </div>
+
+                <div class="bar-card">
+                  <div class="bar-title">Faculty Workload (Hours/Week)</div>
+                  <div class="bar-chart" id="facultyWorkloadChart"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel recommendation-panel">
+              <div class="panel-header">
+                <h3>Agentic AI Recommendation</h3>
+              </div>
+
+              <div class="recommendation-bubble">
+                <span id="recommendationSummary">Analyzing the current schedule...</span>
+              </div>
+
+              <div class="recommendation-actions">
+                <button class="primary-action" id="openConflictsBtn">Review conflicts</button>
+                <button class="secondary-action" id="openAlternativesBtn">Compare alternatives</button>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel-view" id="view-timetable">
+          <div class="panel">
+            <div class="panel-header">
+              <h3 id="fullTimetableTitle">Weekly Timetable</h3>
+              <div class="timetable-controls">
+                <div class="week-control">
+                  <button class="week-step" type="button" data-step="-1" data-select="fullWeekSelect" aria-label="Previous week">‹</button>
+                  <select class="week-select" id="fullWeekSelect" aria-label="Select timetable week"></select>
+                  <button class="week-step" type="button" data-step="1" data-select="fullWeekSelect" aria-label="Next week">›</button>
+                </div>
+                <label class="timetable-group-control">
+                  <span>Group</span>
+                  <select class="timetable-group-filter" id="fullGroupFilter" data-target="fullTimetable"></select>
+                </label>
+              </div>
+            </div>
+            <div class="timetable-holder" id="fullTimetable"></div>
+          </div>
+        </section>
+
+        <section class="panel-view" id="view-conflicts">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Open Scheduling Conflicts <span class="counter-badge" id="fullConflictCount">0</span></h3>
+              <button class="secondary-action" id="detectBtn">Run detection</button>
+            </div>
+            <div class="segmented severity-filter" id="fullSeverityFilter">
+              <button class="seg active" data-sev="all">All</button>
+              <button class="seg" data-sev="critical">Critical</button>
+              <button class="seg" data-sev="high">High</button>
+              <button class="seg" data-sev="medium">Medium</button>
+            </div>
+            <div class="conflict-page-grid">
+              <ul class="conflict-list" id="fullConflictList"></ul>
+              <div id="fullDetail" class="detail-panel"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-view" id="view-model">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Optimization</h3>
+              <button class="secondary-action" id="trainBtn">Retrain</button>
+            </div>
+            <p class="page-sub" id="modelMeta">Loading model...</p>
+            <h4 class="section-label">Model evaluation</h4>
+            <div class="stats-grid" id="modelMetrics"></div>
+            <h4 class="section-label">Training configuration</h4>
+            <dl id="modelParams"></dl>
+            <h4 class="section-label">Feature importance</h4>
+            <div id="featureWeights"></div>
+          </div>
+        </section>
+
+        <section class="panel-view" id="view-rules">
+          <div class="alternatives-workspace">
+            <div class="alternatives-heading">
+              <div>
+                <span class="workspace-eyebrow">SCHEDULE RESOLUTION</span>
+                <h2>Alternative schedules</h2>
+                <p>Ranked repairs that preserve hard institutional constraints.</p>
+              </div>
+              <div class="solver-status"><span></span> Constraint solver ready</div>
+            </div>
+
+            <div class="resolve-toolbar">
+              <div class="resolve-field">
+                <label for="alternativeConflictSelect">Conflict to resolve</label>
+                <select id="alternativeConflictSelect"></select>
+              </div>
+              <button class="resolve-action" id="findAlternativesBtn">
+                <span>Generate alternatives</span>
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+
+            <div id="alternativeDetail" class="detail-panel alternatives-results">
+              <div class="alternatives-empty">
+                <span class="empty-mark" aria-hidden="true">↗</span>
+                <div>
+                  <h3>Select a conflict to begin</h3>
+                  <p>Feasible repairs will be ranked by policy score and predicted acceptance.</p>
+                </div>
+              </div>
+            </div>
+
+            <details class="policy-details alternatives-policy">
+              <summary><span>Resolution policy</span><span class="policy-summary-note">Hard constraints · weighted preferences</span></summary>
+              <div class="policy-grid">
+                <div class="table-scroll"><table class="data-table" id="hardRules"></table></div>
+                <div class="table-scroll"><table class="data-table" id="softRules"></table></div>
+              </div>
+              <div id="policySliders"></div>
+            </details>
+          </div>
+        </section>
+
+        <section class="panel-view" id="view-audit">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Campus Resources</h3>
+            </div>
+            <div class="stats-grid resource-metrics" id="resourceMetrics"></div>
+            <div class="resource-grid">
+              <section class="resource-section">
+                <h4>Rooms</h4>
+                <div class="resource-table-toolbar">
+                  <label class="resource-search"><span>Search rooms</span><input id="roomSearch" type="search" placeholder="Code or room type" /></label>
+                  <span class="resource-result-count" id="roomResultCount"></span>
+                </div>
+                <div class="table-scroll" id="roomTable"></div>
+                <div class="resource-pagination" id="roomPagination"></div>
+              </section>
+              <section class="resource-section">
+                <h4>Faculty workload</h4>
+                <div class="resource-table-toolbar">
+                  <label class="resource-search"><span>Search faculty</span><input id="facultySearch" type="search" placeholder="Name" /></label>
+                  <span class="resource-result-count" id="facultyResultCount"></span>
+                </div>
+                <div class="table-scroll" id="facultyTable"></div>
+                <div class="resource-pagination" id="facultyPagination"></div>
+              </section>
+              <section class="resource-section resource-audit">
+                <h4>Recent schedule activity</h4>
+                <div class="table-scroll" id="auditTable"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-view" id="view-reports">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Reports</h3>
+              <span class="page-sub" id="reportTerm"></span>
+            </div>
+            <div class="stats-grid report-metrics" id="reportMetrics"></div>
+            <div class="report-grid">
+              <section class="resource-section">
+                <h4>Sessions by weekday</h4>
+                <div class="table-scroll" id="dayReport"></div>
+              </section>
+              <section class="resource-section">
+                <h4>Conflicts by severity</h4>
+                <div id="severityReport"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="modal">
+      <div class="modal">
+        <div class="card-head">
+          <div>
+            <h2 id="modalTitle">Impact preview</h2>
+            <p class="muted" id="modalSub"></p>
+          </div>
+          <button class="icon-btn" id="modalClose" aria-label="Close">✕</button>
+        </div>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="/static/app.js?v=20261115-14"></script>
+  </body>
+</html>

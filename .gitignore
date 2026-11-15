@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+backend/data/*.db
+server.log
+*.log
+*.sqlite
+*.sqlite3
+LPU_Placement_Intelligence_Project_Report.docx
